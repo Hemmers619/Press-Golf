@@ -1,1 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#111814">
+<title>PRESS Golf</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#0c110e;
+  color:#fff;
+}
+.app{
+  max-width:600px;
+  margin:auto;
+  min-height:100vh;
+  padding:20px 16px 50px;
+}
+.logo{
+  font-size:34px;
+  font-weight:900;
+  letter-spacing:3px;
+  color:#b9f227;
+}
+.tagline{color:#9aa49e;margin-bottom:22px}
+.card{
+  background:#151d18;
+  border:1px solid #27332b;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:14px;
+}
+h2,h3{margin-top:0}
+.team{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+.teamBox{
+  flex:1;
+  background:#101612;
+  padding:12px;
+  border-radius:14px;
+}
+.name{font-weight:800}
+.hcp{font-size:12px;color:#9aa49e}
+.vs{text-align:center;color:#7d8981;font-weight:bold;margin:8px}
+button{
+  border:0;
+  border-radius:14px;
+  padding:15px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+.primary{
+  width:100%;
+  background:#b9f227;
+  color:#10140f;
+}
+.secondary{
+  width:100%;
+  background:#253128;
+  color:white;
+  margin-top:10px;
+}
+.hidden{display:none}
+.holeHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.bigHole{
+  font-size:28px;
+  font-weight:900;
+}
+.badge{
+  background:#28372d;
+  padding:8px 11px;
+  border-radius:12px;
+}
+.scoreGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.player{
+  background:#101612;
+  border-radius:14px;
+  padding:12px;
+}
+.scoreControls{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:10px;
+}
+.scoreControls button{
+  width:42px;
+  height:42px;
+  padding:0;
+  background:#28372d;
+  color:white;
+  font-size:22px;
+}
+.score{
+  font-size:27px;
+  font-weight:900;
+}
+.net{
+  font-size:12px;
+  color:#b9f227;
+  margin-top:5px;
+}
+.money{
+  font-size:26px;
+  font-weight:900;
+  color:#b9f227;
+}
+.status{
+  color:#adb8b1;
+  line-height:1.5;
+}
+.ctp button{
+  width:48%;
+  margin:1%;
+  background:#28372d;
+  color:white;
+  font-size:14px;
+}
+.ctp button.selected{
+  background:#b9f227;
+  color:#111;
+}
+.nav{
+  display:flex;
+  gap:10px;
+}
+.nav button{flex:1}
+.result{
+  text-align:center;
+  font-size:20px;
+  font-weight:900;
+}
+.green{color:#b9f227}
+.small{font-size:13px;color:#9aa49e}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<div class="logo">PRESS</div>
+<div class="tagline">Golf bets without the parking-lot math.</div>
+
+<!-- HOME -->
+<section id="home">
+
+<div class="card">
+<h3>Today's Match</h3>
+
+<div class="team">
+<div class="teamBox">
+<div class="name">Slappy</div>
+<div class="hcp">9.8 Index</div>
+<br>
+<div class="name">Muscles</div>
+<div class="hcp">14 Index</div>
+</div>
+
+<div class="vs">VS</div>
+
+<div class="teamBox">
+<div class="name">Jimmy</div>
+<div class="hcp">14 Index</div>
+<br>
+<div class="name">3Putt</div>
+<div class="hcp">15 Index</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h3>Game</h3>
+<div class="status">
+2 vs 2 combined net stroke play<br>
+$1/player starting wager<br>
+3 team wins → wager doubles<br>
+Ties carry over<br>
+Par 3 CTP → $5/player
+</div>
+</div>
+
+<button class="primary" onclick="startRound()">START TEST ROUND</button>
+</section>
+
+<!-- ROUND -->
+<section id="round" class="hidden">
+
+<div class="card">
+<div class="holeHeader">
+<div>
+<div class="small">CURRENT HOLE</div>
+<div class="bigHole">Hole <span id="holeNum"></span></div>
+</div>
+
+<div style="text-align:right">
+<div>Par <span id="par"></span></div>
+<div class="small">HDCP <span id="strokeIndex"></span></div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="small">HOLE VALUE / PLAYER</div>
+<div class="money">$<span id="holeValue"></span></div>
+<div class="small">
+Carryover: $<span id="carry"></span> ·
+Next press at <span id="streak"></span>/3 wins
+</div>
+</div>
+
+<div class="scoreGrid" id="players"></div>
+
+<div id="ctpCard" class="card ctp hidden">
+<h3>🎯 Closest to Pin — $5/player</h3>
+<div class="small">Who was closest?</div>
+<div id="ctpButtons"></div>
+
+<div id="threePuttBox" class="hidden" style="margin-top:12px">
+<label>
+<input type="checkbox" id="threePutt">
+ CTP winner 3-putted for bogey
+</label>
+<div class="small" style="margin-top:6px">
+If checked, the $5/player bounty flips to the other team.
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="small">LIVE MONEY — TEAM TOTAL</div>
+<div class="team">
+<div>
+<strong>Slappy / Muscles</strong>
+<div class="money">$<span id="teamA">$0</span></div>
+</div>
+<div style="text-align:right">
+<strong>Jimmy / 3Putt</strong>
+<div class="money">$<span id="teamB">$0</span></div>
+</div>
+</div>
+</div>
+
+<button class="primary" onclick="finishHole()">COMPLETE HOLE</button>
+
+<div class="nav" style="margin-top:10px">
+<button class="secondary" onclick="previousHole()">← Previous</button>
+<button class="secondary" onclick="resetRound()">Reset</button>
+</div>
+
+</section>
+
+<!-- RESULT MODAL AREA -->
+<section id="message" class="hidden">
+<div class="card result" id="messageText"></div>
+<button class="primary" onclick="continueRound()">CONTINUE</button>
+</section>
+
+</div>
+
+<script>
+
+const course = [
+ {par:4,si:9},{par:4,si:5},{par:3,si:17},
+ {par:5,si:1},{par:4,si:13},{par:4,si:7},
+ {par:3,si:15},{par:5,si:3},{par:4,si:11},
+ {par:4,si:10},{par:3,si:18},{par:5,si:2},
+ {par:4,si:14},{par:4,si:6},{par:4,si:8},
+ {par:3,si:16},{par:5,si:4},{par:4,si:12}
+];
+
+const players = [
+ {name:"Slappy",hcp:10,team:"A"},
+ {name:"Muscles",hcp:14,team:"A"},
+ {name:"Jimmy",hcp:14,team:"B"},
+ {name:"3Putt",hcp:15,team:"B"}
+];
+
+let hole = 0;
+let wager = 1;
+let carry = 0;
+
+let streakTeam = null;
+let streakWins = 0;
+
+let balances = {A:0,B:0};
+let scores = [4,4,4,4];
+
+let selectedCTP = null;
+let completed = [];
+
+function startRound(){
+ document.getElementById("home").classList.add("hidden");
+ document.getElementById("round").classList.remove("hidden");
+ render();
+}
+
+function strokesOnHole(hcp,si){
+ if(hcp <= 0) return 0;
+
+ let strokes = Math.floor(hcp/18);
+
+ if(si <= (hcp % 18)){
+   strokes++;
+ }
+
+ return strokes;
+}
+
+function render(){
+
+ const h = course[hole];
+
+ document.getElementById("holeNum").textContent = hole+1;
+ document.getElementById("par").textContent = h.par;
+ document.getElementById("strokeIndex").textContent = h.si;
+ document.getElementById("holeValue").textContent = wager + carry;
+ document.getElementById("carry").textContent = carry;
+ document.getElementById("streak").textContent = streakWins;
+
+ const grid = document.getElementById("players");
+ grid.innerHTML="";
+
+ players.forEach((p,i)=>{
+
+   if(scores[i] == null) scores[i]=h.par;
+
+   const strokes = strokesOnHole(p.hcp,h.si);
+   const net = scores[i]-strokes;
+
+   grid.innerHTML += `
+   <div class="player">
+     <div class="name">${p.name}</div>
+     <div class="small">${p.team==="A"?"Slappy / Muscles":"Jimmy / 3Putt"}</div>
+
+     <div class="scoreControls">
+       <button onclick="changeScore(${i},-1)">−</button>
+       <div class="score">${scores[i]}</div>
+       <button onclick="changeScore(${i},1)">+</button>
+     </div>
+
+     <div class="net">
+       ${strokes ? "Gets "+strokes+" stroke"+(strokes>1?"s":"")+" · " : ""}
+       Net ${net}
+     </div>
+   </div>`;
+ });
+
+ document.getElementById("teamA").textContent =
+ balances.A >= 0 ? "+"+balances.A : balances.A;
+
+ document.getElementById("teamB").textContent =
+ balances.B >= 0 ? "+"+balances.B : balances.B;
+
+ const ctp = document.getElementById("ctpCard");
+
+ if(h.par===3){
+   ctp.classList.remove("hidden");
+   renderCTP();
+ }else{
+   ctp.classList.add("hidden");
+ }
+}
+
+function changeScore(i,amount){
+ scores[i]=Math.max(1,scores[i]+amount);
+ render();
+}
+
+function renderCTP(){
+
+ const box=document.getElementById("ctpButtons");
+ box.innerHTML="";
+
+ players.forEach((p,i)=>{
+   box.innerHTML += `
+   <button
+   class="${selectedCTP===i?"selected":""}"
+   onclick="selectCTP(${i})">
+   ${p.name}
+   </button>`;
+ });
+
+ document.getElementById("threePuttBox")
+ .classList.toggle("hidden",selectedCTP===null);
+}
+
+function selectCTP(i){
+ selectedCTP=i;
+ renderCTP();
+}
+
+function finishHole(){
+
+ const h=course[hole];
+
+ const nets=players.map((p,i)=>
+   scores[i]-strokesOnHole(p.hcp,h.si)
+ );
+
+ const scoreA=nets[0]+nets[1];
+ const scoreB=nets[2]+nets[3];
+
+ const amount=wager+carry;
+
+ let winner=null;
+
+ if(scoreA<scoreB) winner="A";
+ if(scoreB<scoreA) winner="B";
+
+ let description="";
+
+ if(!winner){
+
+   carry += wager;
+   description=`Hole tied ${scoreA}-${scoreB}. $${carry} carries forward.`;
+
+ }else{
+
+   const teamMoney=amount*2;
+
+   balances[winner]+=teamMoney;
+   balances[winner==="A"?"B":"A"]-=teamMoney;
+
+   carry=0;
+
+   if(streakTeam===winner){
+     streakWins++;
+   }else{
+     streakTeam=winner;
+     streakWins=1;
+   }
+
+   description =
+   `${winner==="A"?"Slappy / Muscles":"Jimmy / 3Putt"} win the hole ${Math.min(scoreA,scoreB)}-${Math.max(scoreA,scoreB)}.`;
+
+   if(streakWins===3){
+
+     wager*=2;
+
+     description += ` 🔥 THREE WINS — next hole doubles to $${wager}/player.`;
+
+     streakWins=0;
+     streakTeam=null;
+   }
+ }
+
+ // CTP
+ if(h.par===3 && selectedCTP!==null){
+
+   let ctpTeam=players[selectedCTP].team;
+   const threePutt=document.getElementById("threePutt").checked;
+
+   if(threePutt){
+     ctpTeam=ctpTeam==="A"?"B":"A";
+   }
+
+   balances[ctpTeam]+=10;
+   balances[ctpTeam==="A"?"B":"A"]-=10;
+
+   description += threePutt
+   ? ` 🎯 ${players[selectedCTP].name} won CTP but 3-putted for bogey — bounty flips!`
+   : ` 🎯 ${players[selectedCTP].name} wins CTP.`;
+ }
+
+ completed.push({
+   hole,
+   wager,
+   carry,
+   balances:{...balances}
+ });
+
+ document.getElementById("round").classList.add("hidden");
+ document.getElementById("message").classList.remove("hidden");
+ document.getElementById("messageText").innerHTML=description;
+}
+
+function continueRound(){
+
+ document.getElementById("message").classList.add("hidden");
+
+ if(hole===17){
+
+   document.getElementById("messageText").innerHTML =
+   `ROUND COMPLETE<br><br>
+   <span class="green">Slappy / Muscles: ${balances.A>=0?"+":""}$${balances.A}</span>
+   <br>
+   Jimmy / 3Putt: ${balances.B>=0?"+":""}$${balances.B}`;
+
+   document.getElementById("message").classList.remove("hidden");
+   return;
+ }
+
+ hole++;
+ scores=players.map(()=>course[hole].par);
+ selectedCTP=null;
+
+ const three=document.getElementById("threePutt");
+ if(three) three.checked=false;
+
+ document.getElementById("round").classList.remove("hidden");
+ render();
+}
+
+function previousHole(){
+ alert("Undo/history will be added in the next build.");
+}
+
+function resetRound(){
+ if(!confirm("Reset the entire round?")) return;
+
+ hole=0;
+ wager=1;
+ carry=0;
+ streakTeam=null;
+ streakWins=0;
+ balances={A:0,B:0};
+ scores=[4,4,4,4];
+ selectedCTP=null;
+ completed=[];
+
+ render();
+}
+
+</script>
+</body>
+</html>
 
